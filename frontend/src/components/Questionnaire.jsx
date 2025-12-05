@@ -1,21 +1,62 @@
 import React, { useState } from "react";
+import WeekEnvironmentImpact from './calculations';
 
-function Questionnaire() {
+//TODO: ADD STYLING
+function Questionnaire({onSubmit}) {
   const [model, setModel] = useState("");
   const [days, setDays] = useState("");
   const [prompts, setPrompts] = useState("");
   const [estimate, setEstimate] = useState("");
   const [batching, setBatching] = useState("");
-  const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = () => {
-    setSubmitted(true);
+      let promptsperday = 0;
+
+      if (prompts == "1-10") {
+        promptsperday = 10;
+      } 
+      else if (prompts == "10-20") {
+        promptsperday = 20;
+      }
+      else if (prompts == "20-30") {
+        promptsperday = 30;
+      }
+      else if (prompts == "30-40") {
+        promptsperday = 40;
+      }
+      else if (prompts == "40+") {
+        promptsperday = Number(estimate);
+      }
+
+      const impact = WeekEnvironmentImpact(model, promptsperday, Number(days));
+      
+            fetch("http://localhost:5001/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model,
+          daysPerWeek: days,
+          promptsPerDay: promptsperday,
+          batching,
+          weeklyEnergy: impact.wattHours,
+          weeklyWater: impact.waterML,
+          weeklyCO2: impact.co2Grams,
+          yearlyLightbulbHours: impact.lightbulbHours,
+          yearlyWaterBottles: impact.waterBottles,
+          yearlyMilesDriven: impact.milesDriven
+        })
+      });
+
+      onSubmit({ impact, model, days, promptsperday, batching});
   };
+
 
 
   return (
     <div>
-      <h2>AI Usage Questions</h2>
+      <h2>Questions</h2>
       <h3>1. What AI model or tool do you use the most?</h3>
       <label><input type="radio" name="model" value="ChatGPT" onChange={(e) => setModel(e.target.value)}/>ChatGPT</label><br/>
       <label><input type="radio" name="model" value="Gemini" onChange={(e) => setModel(e.target.value)}/>Gemini</label><br/>
@@ -55,8 +96,10 @@ function Questionnaire() {
       <br/>
       <button onClick={handleSubmit}>Submit</button>
     </div>
+
+    
   );
-}
+};
 
 export default Questionnaire;
 
