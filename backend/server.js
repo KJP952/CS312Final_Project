@@ -25,16 +25,20 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("DB Error:", err));
 
-const ResponseSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
+  model: String,
   daysPerWeek: Number,
   promptsPerDay: Number,
+  batching: String,
   weeklyEnergy: Number,
   weeklyWater: Number,
   weeklyCO2: Number,
-  scenarios: Array,
+  yearlyLightbulbHours: Number,
+  yearlyWaterBottles: Number,
+  yearlyMilesDriven: Number
 });
 
-const Response = mongoose.model("Response", ResponseSchema);
+const Response = mongoose.model("Response", Responseschema);
 
 app.post("/api/save", async (req, res) => {
   console.log("Received:", req.body);
@@ -42,7 +46,7 @@ app.post("/api/save", async (req, res) => {
   try {
     const resp = new Response(req.body);
     await resp.save();
-    res.status(201).json({ message: "Saved successfully!" });
+    res.status(201).json({ message: "Saved data!" });
   } catch (err) {
     console.error("Save error:", err);
     res.status(500).json({ error: "Error saving data" });
