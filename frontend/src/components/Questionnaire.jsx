@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import WeekEnvironmentImpact from './calculations';
-
+import './Questionnaire.css';
 //TODO: ADD STYLING
 function Questionnaire({onSubmit}) {
   const [model, setModel] = useState("");
